@@ -16,6 +16,7 @@ else:
 
 STACKS = {}
 PROJECTS = None
+OLD_CONTAINERS = []
 STAY_TIME = float(int(os.getenv('STAY_TIME', 7)) * 86400)
 STAY_TIME_STACK = float(int(os.getenv('STAY_TIME_STACK', 1)) * 86400)
 CLEANUP_STACKS = os.getenv('CLEANUP_STACKS', '').split(',')
@@ -103,6 +104,7 @@ async def connect_scheduler():
 
 app = Application()
 app.loop.run_until_complete(get_project_and_stacks())
+app.loop.run_until_complete(find_old_containers())
 app.loop.run_until_complete(connect_scheduler())
 router = app.router
 router.add_route('/', index)
