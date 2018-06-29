@@ -68,9 +68,12 @@ async def remove_old_ss():
         stack, service = data[0], data[1]
         try:
             for cleanup in CLEANUP_STACKS:
+                if stack not in STACKS.keys():
+                    continue
+                if STACKS[stack].description is None:
+                    continue
                 if stack.startswith(cleanup) \
                         and this_time > (container.createdTS / 1000) \
-                        and stack in STACKS.keys() \
                         and not STACKS[stack].description.lower().startswith('need') \
                         and STACKS[stack] not in stack_to_remove:
                     stack_to_remove.append(STACKS[stack])
@@ -106,6 +109,7 @@ async def connect_scheduler():
 app = Application()
 app.loop.run_until_complete(get_project_and_stacks())
 app.loop.run_until_complete(find_old_containers())
+app.loop.run_until_complete(remove_old_ss())
 app.loop.run_until_complete(connect_scheduler())
 router = app.router
 router.add_route('/', index)
