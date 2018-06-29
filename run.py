@@ -78,7 +78,8 @@ async def remove_old_ss():
             print(e)
         try:
             if stack in CLEANUP_SERVICE_IN_STACKS \
-                    and service not in ['develop', 'devel', 'master'] \
+                    and not service.startswith('develop') \
+                    and not service.startswith('master') \
                     and not service.startswith('release'):
                 for i in container.services().data:
                     if i not in service_to_remove:
