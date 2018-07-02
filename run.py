@@ -62,7 +62,7 @@ async def remove_old_ss():
     stack_to_remove = []
     service_to_remove = []
     this_time = time.time() - STAY_TIME
-    containers = copy.deepcopy(OLD_CONTAINERS)
+    containers = copy.copy(OLD_CONTAINERS)
     for container in containers:
         data = container.labels.get('io.rancher.stack_service.name').split('/')
         stack, service = data[0], data[1]
