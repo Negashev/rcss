@@ -17,8 +17,8 @@ else:
 STACKS = {}
 PROJECTS = None
 OLD_CONTAINERS = []
-STAY_TIME = float(int(os.getenv('STAY_TIME', 7)) * 86400)
-STAY_TIME_STACK = float(int(os.getenv('STAY_TIME_STACK', 1)) * 86400)
+STAY_TIME = float(float(os.getenv('STAY_TIME', 7)) * 86400)
+STAY_TIME_STACK = float(float(os.getenv('STAY_TIME_STACK', 1)) * 86400)
 CLEANUP_STACKS = os.getenv('CLEANUP_STACKS', '').split(',')
 CLEANUP_SERVICE_IN_STACKS = os.getenv('CLEANUP_SERVICE_IN_STACKS', '').split(',')
 
