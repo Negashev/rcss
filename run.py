@@ -100,9 +100,9 @@ async def remove_old_ss():
 
 async def connect_scheduler():
     scheduler = AsyncIOScheduler(timezone="UTC")
-    scheduler.add_job(get_project_and_stacks, 'interval', seconds=1800)
-    scheduler.add_job(find_old_containers, 'interval', seconds=1200)
-    scheduler.add_job(remove_old_ss, 'interval', seconds=600)
+    scheduler.add_job(get_project_and_stacks, 'interval', seconds=int(os.getnev('get_project_and_stacks', 1800)))
+    scheduler.add_job(find_old_containers, 'interval', seconds=int(os.getnev('find_old_containers', 1200)))
+    scheduler.add_job(remove_old_ss, 'interval', seconds=int(os.getnev('remove_old_ss', 600)))
     scheduler.start()
 
 
