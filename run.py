@@ -54,7 +54,7 @@ async def find_old_containers():
     OLD_CONTAINERS = containers
 
 
-async def remove_old_ss():
+async def clean_old_ss():
     global OLD_CONTAINERS
     global STACKS
     global CLEANUP_STACKS
@@ -103,7 +103,7 @@ async def connect_scheduler():
     scheduler = AsyncIOScheduler(timezone="UTC")
     scheduler.add_job(get_project_and_stacks, 'interval', seconds=int(os.getenv('get_project_and_stacks', 1800)))
     scheduler.add_job(find_old_containers, 'interval', seconds=int(os.getenv('find_old_containers', 1200)))
-    scheduler.add_job(remove_old_ss, 'interval', seconds=int(os.getenv('remove_old_ss', 600)))
+    scheduler.add_job(clean_old_ss, 'interval', seconds=int(os.getenv('remove_old_ss', 600)))
     scheduler.start()
 
 
