@@ -51,10 +51,11 @@ async def find_old_containers():
                                     and this_time > (x.createdTS / 1000),
                              data)
         paginate += 100
+    print(f"found {len(containers)} containers")
     OLD_CONTAINERS = containers
 
 
-async def remove_old_ss():
+async def clean_old_ss():
     global OLD_CONTAINERS
     global STACKS
     global CLEANUP_STACKS
@@ -89,27 +90,28 @@ async def remove_old_ss():
                         service_to_remove.append(i)
         except Exception as e:
             print(e)
-
-    for stack in stack_to_remove:
-        print(f"remove {stack.name}")
-        stack.remove()
-    for service in service_to_remove:
-        print(f"remove {service.stack().name}/{service.name}")
-        service.remove()
-
+    try:
+        for stack in stack_to_remove:
+            print(f"remove {stack.name}")
+            stack.remove()
+        for service in service_to_remove:
+            print(f"remove {service.stack().name}/{service.name}")
+            service.remove()
+    except Exception as e:
+        print(e)
 
 async def connect_scheduler():
     scheduler = AsyncIOScheduler(timezone="UTC")
     scheduler.add_job(get_project_and_stacks, 'interval', seconds=1800)
     scheduler.add_job(find_old_containers, 'interval', seconds=1200)
-    scheduler.add_job(remove_old_ss, 'interval', seconds=600)
+    scheduler.add_job(clean_old_ss, 'interval', seconds=600)
     scheduler.start()
 
 
 app = Application()
 app.loop.run_until_complete(get_project_and_stacks())
 app.loop.run_until_complete(find_old_containers())
-app.loop.run_until_complete(remove_old_ss())
+app.loop.run_until_complete(clean_old_ss())
 app.loop.run_until_complete(connect_scheduler())
 router = app.router
 router.add_route('/', index)
