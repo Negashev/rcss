@@ -51,11 +51,10 @@ async def find_old_containers():
                                     and this_time > (x.createdTS / 1000),
                              data)
         paginate += 100
-    print(f"found {len(containers)} containers")
     OLD_CONTAINERS = containers
 
 
-async def clean_old_ss():
+async def remove_old_ss():
     global OLD_CONTAINERS
     global STACKS
     global CLEANUP_STACKS
@@ -63,7 +62,7 @@ async def clean_old_ss():
     stack_to_remove = []
     service_to_remove = []
     this_time = time.time() - STAY_TIME
-    containers = copy.deepcopy(OLD_CONTAINERS)
+    containers = copy.copy(OLD_CONTAINERS)
     for container in containers:
         data = container.labels.get('io.rancher.stack_service.name').split('/')
         stack, service = data[0], data[1]
@@ -102,9 +101,9 @@ async def clean_old_ss():
 
 async def connect_scheduler():
     scheduler = AsyncIOScheduler(timezone="UTC")
-    scheduler.add_job(get_project_and_stacks, 'interval', seconds=1800)
-    scheduler.add_job(find_old_containers, 'interval', seconds=1200)
-    scheduler.add_job(clean_old_ss, 'interval', seconds=600)
+    scheduler.add_job(get_project_and_stacks, 'interval', seconds=int(os.getenv('get_project_and_stacks', 1800)))
+    scheduler.add_job(find_old_containers, 'interval', seconds=int(os.getenv('find_old_containers', 1200)))
+    scheduler.add_job(remove_old_ss, 'interval', seconds=int(os.getenv('remove_old_ss', 600)))
     scheduler.start()
 
 
