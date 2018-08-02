@@ -40,7 +40,8 @@ async def find_old_containers():
     global OLD_CONTAINERS
     paginate = 0
     containers = []
-    this_time = time.time() - STAY_TIME
+    this_time_container = time.time() - STAY_TIME
+    this_time_stack = time.time() - STAY_TIME_STACK
     while True:
         data = PROJECTS.containers(marker=f'm{paginate}').data
         if not data:
@@ -48,7 +49,7 @@ async def find_old_containers():
         containers += filter(lambda
                                  x: x.labels.get('io.rancher.stack_service.name') is not None
                                     and x.labels.get('io.rancher.container.system') is None
-                                    and this_time > (x.createdTS / 1000),
+                                    and (this_time_container > (x.createdTS / 1000) or this_time_stack > (x.createdTS / 1000)),
                              data)
         paginate += 100
     OLD_CONTAINERS = containers
@@ -61,7 +62,8 @@ async def clean_old_ss():
     global CLEANUP_SERVICE_IN_STACKS
     stack_to_remove = []
     service_to_remove = []
-    this_time = time.time() - STAY_TIME
+    this_time_container = time.time() - STAY_TIME
+    this_time_stack = time.time() - STAY_TIME_STACK
     containers = copy.copy(OLD_CONTAINERS)
     for container in containers:
         data = container.labels.get('io.rancher.stack_service.name').split('/')
@@ -72,7 +74,7 @@ async def clean_old_ss():
                     continue
                 if not stack.startswith(cleanup):
                     continue
-                if not this_time > (container.createdTS / 1000):
+                if not this_time_stack > (container.createdTS / 1000):
                     continue
                 if STACKS[stack] in stack_to_remove:
                     continue
@@ -88,6 +90,8 @@ async def clean_old_ss():
                     and not service.startswith('master') \
                     and not service.startswith('release'):
                 for i in container.services().data:
+                    if not this_time_container > (container.createdTS / 1000):
+                        continue
                     if i not in service_to_remove:
                         service_to_remove.append(i)
         except Exception as e:
