@@ -17,8 +17,8 @@ else:
 STACKS = {}
 PROJECTS = None
 OLD_CONTAINERS = []
-STAY_TIME = float(int(os.getenv('STAY_TIME', 7)) * 86400)
-STAY_TIME_STACK = float(int(os.getenv('STAY_TIME_STACK', 1)) * 86400)
+STAY_TIME = float(float(os.getenv('STAY_TIME', 7)) * 86400)
+STAY_TIME_STACK = float(float(os.getenv('STAY_TIME_STACK', 1)) * 86400)
 CLEANUP_STACKS = os.getenv('CLEANUP_STACKS', '').split(',')
 CLEANUP_SERVICE_IN_STACKS = os.getenv('CLEANUP_SERVICE_IN_STACKS', '').split(',')
 
@@ -70,13 +70,16 @@ async def clean_old_ss():
             for cleanup in CLEANUP_STACKS:
                 if stack not in STACKS.keys():
                     continue
-                if STACKS[stack].description is None:
+                if not stack.startswith(cleanup):
                     continue
-                if stack.startswith(cleanup) \
-                        and this_time > (container.createdTS / 1000) \
-                        and not STACKS[stack].description.lower().startswith('need') \
-                        and STACKS[stack] not in stack_to_remove:
-                    stack_to_remove.append(STACKS[stack])
+                if not this_time > (container.createdTS / 1000):
+                    continue
+                if STACKS[stack] in stack_to_remove:
+                    continue
+                description = STACKS[stack].description
+                if description is not None and description.lower().startswith('need'):
+                        continue
+                stack_to_remove.append(STACKS[stack])
         except Exception as e:
             print(e)
         try:
